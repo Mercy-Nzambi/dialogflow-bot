@@ -15,6 +15,9 @@ with open("agriculture_faq.csv", newline='', encoding="utf-8") as f:
         if q and a:  # only add if both exist
             knowledge_base[q.strip().lower()] = a.strip()
 
+@app.route("/ping", methods=["GET"])
+def ping():
+    return jsonify({"message": "pong", "status": "ok"})
 
 
 # --- Route for Dialogflow ES Webhook ---
@@ -46,3 +49,10 @@ def dialogflow_unity():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000)
+
+
+from flask import jsonify
+
+@app.route("/ping", methods=["GET"])
+def ping():
+    return jsonify({"message": "pong", "status": "ok"})
