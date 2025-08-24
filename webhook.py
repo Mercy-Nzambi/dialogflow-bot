@@ -20,7 +20,7 @@ def ping():
     return jsonify({"message": "pong", "status": "ok"})
 
 
-# --- Route for Dialogflow ES Webhook ---
+# --- Route for Dialogflow ES Webhook ----
 @app.route('/webhook', methods=['POST'])
 def webhook():
     req = request.get_json(force=True)
@@ -51,8 +51,4 @@ if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000)
 
 
-from flask import jsonify
 
-@app.route("/ping", methods=["GET"])
-def ping():
-    return jsonify({"message": "pong", "status": "ok"})
