@@ -8,7 +8,7 @@ app = Flask(__name__)
 # Load FAQ into dictionary
 faq_data = {}
 
-def load_faq(file_path="agriculture_faq_kids.csv"):
+def load_faq(file_path="agriculture_faq.csv"):
     abs_path = os.path.abspath(file_path)
     print(f"Loading FAQ from: {abs_path}")
     try:
@@ -22,7 +22,7 @@ def load_faq(file_path="agriculture_faq_kids.csv"):
     except Exception as e:
         print(f"⚠️ Could not load FAQ: {e}")
 
-load_faq()
+load_faq("agriculture_faq.csv")
 
 def find_best_answer(user_input):
     if not user_input:
