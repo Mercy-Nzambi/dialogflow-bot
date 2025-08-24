@@ -4,9 +4,7 @@ import random
 
 app = Flask(__name__)
 
-# Load Q&A knowledge base from CSV
-import csv
-
+# Load Q&A knowledge base from CSV .
 knowledge_base = {}
 
 with open("knowledge_base.csv", newline='', encoding="utf-8") as f:
