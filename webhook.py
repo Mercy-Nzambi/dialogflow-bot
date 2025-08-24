@@ -1,57 +1,43 @@
 from flask import Flask, request, jsonify
 import csv
-import difflib
-import os
+import random
 
 app = Flask(__name__)
 
-# Load FAQ into dictionary
-faq_data = {}
+# Load Q&A knowledge base from CSV
+knowledge_base = {}
+with open("agriculture_faq.csv", encoding="utf-8") as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        knowledge_base[row["question"].strip().lower()] = row["answer"].strip()
 
-def load_faq(file_path="agriculture_faq.csv"):
-    abs_path = os.path.abspath(file_path)
-    print(f"Loading FAQ from: {abs_path}")
-    try:
-        with open(file_path, newline="", encoding="utf-8") as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in reader:
-                q = row["Question"].strip().lower()
-                a = row["Answer"].strip()
-                faq_data[q] = a
-        print(f"✅ Loaded {len(faq_data)} FAQ entries")
-    except Exception as e:
-        print(f"⚠️ Could not load FAQ: {e}")
 
-load_faq("agriculture_faq.csv")
-
-def find_best_answer(user_input):
-    if not user_input:
-        return "I didn’t catch that, can you try again?"
-    user_input = user_input.strip().lower()
-    questions = list(faq_data.keys())
-    match = difflib.get_close_matches(user_input, questions, n=1, cutoff=0.6)
-    if match:
-        return faq_data[match[0]]
-    return "I'm not sure, but I'm still learning about that!"
-
-@app.route("/webhook", methods=["POST"])
+# --- Route for Dialogflow ES Webhook ---
+@app.route('/webhook', methods=['POST'])
 def webhook():
-    req = request.get_json(force=True, silent=True)
-    print("Incoming JSON:", req)  # Debugging log
+    req = request.get_json(force=True)
+    user_input = req.get("queryResult", {}).get("queryText", "").strip().lower()
 
-    if not req:
-        return jsonify({"fulfillmentText": "Sorry, I didn’t receive any input."})
-
-    # Extract user input (Dialogflow ES format)
-    user_input = req.get("queryResult", {}).get("queryText", "")
-
-    # Find the best FAQ answer
-    response_text = find_best_answer(user_input)
-
-    # Respond to Dialogflow ES
+    # Find answer from knowledge base
+    reply = knowledge_base.get(user_input, "Sorry, I don't know the answer to that yet.")
     return jsonify({
-        "fulfillmentText": response_text
+        "fulfillmentText": reply
     })
 
-if __name__ == "__main__":
-    app.run(debug=True, port=8080)
+
+# --- Route for Unity Direct Call ---
+@app.route('/dialogflow', methods=['POST'])
+def dialogflow_unity():
+    req = request.get_json(force=True)
+    user_input = req.get("message", "").strip().lower()
+
+    # Find answer from knowledge base
+    reply = knowledge_base.get(user_input, "Sorry, I don't know the answer to that yet.")
+
+    return jsonify({
+        "reply": reply
+    })
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=3000)
