@@ -13,16 +13,16 @@ with open("agriculture_faq.csv", encoding="utf-8") as f:
 
 
 # --- Route for Dialogflow ES Webhook ---
-@app.route('/webhook', methods=['POST'])
-def webhook():
-    req = request.get_json(force=True)
-    user_input = req.get("queryResult", {}).get("queryText", "").strip().lower()
+knowledge_base = {}
 
-    # Find answer from knowledge base
-    reply = knowledge_base.get(user_input, "Sorry, I don't know the answer to that yet.")
-    return jsonify({
-        "fulfillmentText": reply
-    })
+with open("knowledge_base.csv", newline='', encoding="utf-8") as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        q = row.get("question") or row.get("Question")
+        a = row.get("answer") or row.get("Answer")
+        if q and a:  # only add if both exist
+            knowledge_base[q.strip().lower()] = a.strip()
+
 
 
 # --- Route for Unity Direct Call ---
