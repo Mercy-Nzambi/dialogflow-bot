@@ -7,7 +7,7 @@ app = Flask(__name__)
 # Load Q&A knowledge base from CSV .
 knowledge_base = {}
 
-with open("knowledge_base.csv", newline='', encoding="utf-8") as f:
+with open("agriculture_faq.csv", newline='', encoding="utf-8") as f:
     reader = csv.DictReader(f)
     for row in reader:
         q = row.get("question") or row.get("Question")
