@@ -5,14 +5,8 @@ import random
 app = Flask(__name__)
 
 # Load Q&A knowledge base from CSV
-knowledge_base = {}
-with open("agriculture_faq.csv", encoding="utf-8") as f:
-    reader = csv.DictReader(f)
-    for row in reader:
-        knowledge_base[row["question"].strip().lower()] = row["answer"].strip()
+import csv
 
-
-# --- Route for Dialogflow ES Webhook ---
 knowledge_base = {}
 
 with open("knowledge_base.csv", newline='', encoding="utf-8") as f:
@@ -23,6 +17,19 @@ with open("knowledge_base.csv", newline='', encoding="utf-8") as f:
         if q and a:  # only add if both exist
             knowledge_base[q.strip().lower()] = a.strip()
 
+
+
+# --- Route for Dialogflow ES Webhook ---
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    req = request.get_json(force=True)
+    user_input = req.get("queryResult", {}).get("queryText", "").strip().lower()
+
+    # Find answer from knowledge base
+    reply = knowledge_base.get(user_input, "Sorry, I don't know the answer to that yet.")
+    return jsonify({
+        "fulfillmentText": reply
+    })
 
 
 # --- Route for Unity Direct Call ---
