@@ -4,10 +4,10 @@ import random
 
 app = Flask(__name__)
 
-# Load Q&A knowledge base from CSV .
+# Load Q&A knowledge base from CSV . .
 knowledge_base = {}
 
-with open("agriculture_faq.csv", newline='', encoding="utf-8") as f:
+with open("agriculture_faq_cbc.csv", newline='', encoding="utf-8") as f:
     reader = csv.DictReader(f)
     for row in reader:
         q = row.get("question") or row.get("Question")
