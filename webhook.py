@@ -47,6 +47,12 @@ def dialogflow_unity():
     })
 
 
+@app.route("/", methods=["GET"])
+def index():
+    return "Server is running. Available routes: /webhook (POST)"
+
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000)
 
