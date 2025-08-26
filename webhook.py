@@ -1,10 +1,10 @@
 from flask import Flask, request, jsonify
 import csv
-import random
+import os
 
 app = Flask(__name__)
 
-# Load Q&A knowledge base from CSV . .
+# Load Q&A knowledge base from CSV
 knowledge_base = {}
 
 with open("agriculture_faq_cbc.csv", newline='', encoding="utf-8") as f:
@@ -15,12 +15,12 @@ with open("agriculture_faq_cbc.csv", newline='', encoding="utf-8") as f:
         if q and a:  # only add if both exist
             knowledge_base[q.strip().lower()] = a.strip()
 
+# --- Health check ---
 @app.route("/ping", methods=["GET"])
 def ping():
     return jsonify({"message": "pong", "status": "ok"})
 
-
-# --- Route for Dialogflow ES Webhook ----
+# --- Route for Dialogflow ES Webhook ---
 @app.route('/webhook', methods=['POST'])
 def webhook():
     req = request.get_json(force=True)
@@ -32,7 +32,6 @@ def webhook():
         "fulfillmentText": reply
     })
 
-
 # --- Route for Unity Direct Call ---
 @app.route('/dialogflow', methods=['POST'])
 def dialogflow_unity():
@@ -42,29 +41,15 @@ def dialogflow_unity():
     # Find answer from knowledge base
     reply = knowledge_base.get(user_input, "Sorry, I don't know the answer to that yet.")
 
-    # Try exact match first
-    if user_input in knowledge_base:
-        reply = knowledge_base[user_input]
-    else:
-        # Try partial match (substring search)
-        for q, a in knowledge_base.items():
-            if user_input in q:  # user input is contained in the stored question
-                reply = a
-                break
-
     return jsonify({
         "reply": reply
     })
 
-#---List all routes on Render----
+# --- List all routes on Render ---
 @app.route("/", methods=["GET"])
 def index():
-    return "Server is running. Available routes: /webhook (POST)"
-
-
+    return "Server is running. Available routes: /ping, /webhook (POST), /dialogflow (POST)"
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=3000)
-
-
-
+    port = int(os.environ.get("PORT", 3000))  # Render sets PORT, fallback 3000 locally
+    app.run(host='0.0.0.0', port=port)
