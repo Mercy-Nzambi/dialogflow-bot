@@ -36,6 +36,7 @@ def webhook():
 @app.route('/dialogflow', methods=['POST'])
 def dialogflow_unity():
     req = request.get_json(force=True)
+    print("RAW REQUEST: ",req)
     user_input = req.get("message", "").strip().lower()
 
     # Find answer from knowledge base
