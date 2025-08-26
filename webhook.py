@@ -42,6 +42,16 @@ def dialogflow_unity():
     # Find answer from knowledge base
     reply = knowledge_base.get(user_input, "Sorry, I don't know the answer to that yet.")
 
+    # Try exact match first
+    if user_input in knowledge_base:
+        reply = knowledge_base[user_input]
+    else:
+        # Try partial match (substring search)
+        for q, a in knowledge_base.items():
+            if user_input in q:  # user input is contained in the stored question
+                reply = a
+                break
+
     return jsonify({
         "reply": reply
     })
